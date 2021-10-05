@@ -23,7 +23,9 @@ int usT = 1000;   // f = 1000 Hz  T = 1 ms = 1000 us // f = 10000 Hz  T = 100 us
 
 // muut variablet
 char buffer[128];
-int als = 0;         
+int als = 0;
+int fSpeed; 
+int oldSpeed = 100;        
 int getALS();
 float getSpeed();
 void turnLeft();
@@ -93,7 +95,11 @@ int main()
         als = getALS();                      
         if (als > 70) {
             speed = getSpeed();
-            printf("Svetlanan vauhti kiihtyy! %i \n", als);
+            if (speed >= oldSpeed) {
+                printf("Svetlanan vauhti kiihtyy! %i \n", als);
+            } else {
+                printf("Svetlanan vauhti hidastuu! %i \n", als);
+            }
             pwmMTD00.write(speed);
             pwmMTD01.write(speed);
             in00.write(false); // forward moottori1
@@ -101,12 +107,15 @@ int main()
             in10.write(true); // forward moottori2
             in11.write(false);
 
-            sprintf(buffer, "{\"d\":{\"Tankki\":\"Svetlana\",\"Liike\":\"1 \",\"Valoanturin arvo:\":%i}}", als);  // JSON-muotoisen viestin muodostus. 
+            fSpeed = (int)(speed * 100)
+
+            sprintf(buffer, "{\"d\":{\"Tankki\":\"Svetlana\",\"Liike\":\"%i \",\"Valoanturin arvo:\":%i}}",fspeed, als);  // JSON-muotoisen viestin muodostus. 
             msg.payload = (void*)buffer;                             
             msg.payloadlen = strlen(buffer);                        
             client.publish("iot-2/evt/Svetlana/fmt/json", msg);     // Oikea formaatti
 
             moving = true;
+            oldSpeed = fSpeed;
             ThisThread::sleep_for(1s);
         }
             
