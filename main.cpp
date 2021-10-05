@@ -59,7 +59,6 @@ int main()
         printf("\nConnection success\n");
     }
         
-        
     esp.get_ip_address(&deviceIP);
     printf("Laitteen IP-osoite: %s\n", deviceIP.get_ip_address());
  
@@ -73,12 +72,11 @@ int main()
  
     MQTT::Message msg;          // Nämä kaiketi vaaditaan kaikki MQTT-viestin muodostamiseen...
     msg.qos = MQTT::QOS0;
-    msg.retained = false;
-    msg.dup = false;
+    msg.retained = true;
+    msg.dup = true;
     msg.payload = (void*)buffer;
     msg.payloadlen = strlen(buffer);
     ThisThread::sleep_for(5s);  
-
 
     // Yhdistäminen mqtt brokeriin joka määritelty jsonissa
     printf("Svetlana yhtyy:  %s \n\n", MBED_CONF_APP_MQTT_BROKER_HOSTNAME);
@@ -106,7 +104,7 @@ int main()
             msg.payloadlen = strlen(buffer);                        
             client.publish("iot-2/evt/Svetlana/fmt/json", msg);     // Oikea formaatti
 
-            moving = false;
+            moving = true;
         }
         ThisThread::sleep_for(1s);
     }
@@ -120,19 +118,19 @@ float getSpeed() {
 void turnLeft() {
     pwmMTD00.write(1.0f);
     pwmMTD01.write(1.0f);
-    in00.write(false);
-    in01.write(true);
-    in10.write(false);
-    in11.write(true);
+    in00.write(true);
+    in01.write(false);
+    in10.write(true);
+    in11.write(false);
 }
 
 void turnRight() {
     pwmMTD00.write(1.0f);
     pwmMTD01.write(1.0f);
-    in00.write(true);
-    in01.write(false);
-    in10.write(true);
-    in11.write(false);
+    in00.write(false);
+    in01.write(true);
+    in10.write(false);
+    in11.write(true);
 }
 
 void forwardLoop() {
@@ -141,10 +139,10 @@ void forwardLoop() {
         printf("Svetlanan vauhti kiihtyy! %i \n", als);
         pwmMTD00.write(speed);
         pwmMTD01.write(speed);
-        in00.write(true); // forward moottori1
-        in01.write(false);
-        in10.write(false); // forward moottori2
-        in11.write(true);
+        in00.write(false); // forward moottori1
+        in01.write(true);
+        in10.write(true); // forward moottori2
+        in11.write(false);
 
         /*
         sprintf(buffer, "{\"d\":{\"Tankki\":\"Svetlana\",\"Liike\":\"1 \",\"Valoanturin arvo:\":%i}}", als);  // JSON-muotoisen viestin muodostus. 
@@ -153,11 +151,11 @@ void forwardLoop() {
         client.publish("iot-2/evt/Svetlana/fmt/json", msg);     // Oikea formaatti
         */
 
-        moving = true;
+        moving = false;
         ThisThread::sleep_for(1s);
     }
 
-    if (getALS() < 70 && moving == true)
+    if (getALS() < 70 && moving == false)
     {
         turnLeft();
         ThisThread::sleep_for(5s);
