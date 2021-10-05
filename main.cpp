@@ -86,12 +86,10 @@ int main()
     socket.connect(MQTTBroker);
     client.connect(data);
 
-
     pwmMTD00.period_us(usT); //pwm
     // pwmMTD00.write(0.2f);
     pwmMTD01.period_us(usT);
     // pwmMTD01.write(0.2f);
-
 
     while(1)  {                         
         if (getALS() > 70) {
@@ -124,11 +122,15 @@ void turnLeft() {
     pwmMTD01.write(1.0f);
     in00.write(false);
     in01.write(true);
+    in10.write(false);
+    in11.write(true)
 }
 
 void turnRight() {
     pwmMTD00.write(1.0f);
     pwmMTD01.write(1.0f);
+    in00.write(true);
+    in10.write(false);
     in10.write(true);
     in11.write(false);
 }
@@ -144,10 +146,12 @@ void forwardLoop() {
         in10.write(false); // forward moottori2
         in11.write(true);
 
-        //sprintf(buffer, "{\"d\":{\"Tankki\":\"Svetlana\",\"Liike\":\"1 \",\"Valoanturin arvo:\":%i}}", als);  // JSON-muotoisen viestin muodostus. 
-        //msg.payload = (void*)buffer;                             
-        //msg.payloadlen = strlen(buffer);                        
-        //client.publish("iot-2/evt/Svetlana/fmt/json", msg);     // Oikea formaatti 
+        /*
+        sprintf(buffer, "{\"d\":{\"Tankki\":\"Svetlana\",\"Liike\":\"1 \",\"Valoanturin arvo:\":%i}}", als);  // JSON-muotoisen viestin muodostus. 
+        msg.payload = (void*)buffer;                             
+        msg.payloadlen = strlen(buffer);                        
+        client.publish("iot-2/evt/Svetlana/fmt/json", msg);     // Oikea formaatti
+        */
 
         moving = true;
         ThisThread::sleep_for(1s);
