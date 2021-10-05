@@ -89,8 +89,9 @@ int main()
     pwmMTD01.period_us(usT);
     // pwmMTD01.write(0.2f);
 
-    while(1)  {                         
-        if (getALS() > 70) {
+    while(1)  {   
+        als = getALS();                      
+        if (als > 70) {
             speed = getSpeed();
             printf("Svetlanan vauhti kiihtyy! %i \n", als);
             pwmMTD00.write(speed);
@@ -107,28 +108,29 @@ int main()
 
             moving = true;
             ThisThread::sleep_for(1s);
-
-            } else if (getALS() < 70 && moving == true) {
-                int counter = 0;
-                while (getALS() < 70) {
-                    turnLeft();
-                    ThisThread::sleep_for(1s);
-                    counter++;
-                    if (counter >= 10) {
-                        break;
-                    }
+        }
+            
+        else if (als < 70 && moving == true) {
+            int counter = 0;
+            while (getALS() < 70) {
+                turnLeft();
+                ThisThread::sleep_for(1s);
+                counter++;
+                if (counter >= 10) {
+                    break;
                 }
-                pwmMTD00.write(0);
-                pwmMTD01.write(0);
-                printf("Svetlana on seis! %i \n", als);
-
-                sprintf(buffer, "{\"d\":{\"Tankki\":\"Svetlana\",\"Liike\":\"0 \",\"Valoanturin arvo:\":%i}}", als);  // JSON-muotoisen viestin muodostus. 
-                msg.payload = (void*)buffer;                             
-                msg.payloadlen = strlen(buffer);                        
-                client.publish("iot-2/evt/Svetlana/fmt/json", msg);     // Oikea formaatti
-
-                moving = false;
             }
+            pwmMTD00.write(0);
+            pwmMTD01.write(0);
+            printf("Svetlana on seis! %i \n", als);
+
+            sprintf(buffer, "{\"d\":{\"Tankki\":\"Svetlana\",\"Liike\":\"0 \",\"Valoanturin arvo:\":%i}}", als);  // JSON-muotoisen viestin muodostus. 
+            msg.payload = (void*)buffer;                             
+            msg.payloadlen = strlen(buffer);                        
+            client.publish("iot-2/evt/Svetlana/fmt/json", msg);     // Oikea formaatti
+
+            moving = false;
+        }
         ThisThread::sleep_for(1s);
     }
 }
