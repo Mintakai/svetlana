@@ -158,13 +158,13 @@ void forwardLoop() {
     if (getALS() < 70 && moving == false)
     {
         turnLeft();
-        ThisThread::sleep_for(5s);
+        ThisThread::sleep_for(2s);
         if (getALS() > 70) {
             forwardLoop();
         }
         else {
             turnRight();
-            ThisThread::sleep_for(10s);
+            ThisThread::sleep_for(4s);
             if (getALS() > 70) {
                 forwardLoop();
             }
