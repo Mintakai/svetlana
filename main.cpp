@@ -91,21 +91,44 @@ int main()
 
     while(1)  {                         
         if (getALS() > 70) {
-            forwardLoop();
-        }
+            speed = getSpeed();
+            printf("Svetlanan vauhti kiihtyy! %i \n", als);
+            pwmMTD00.write(speed);
+            pwmMTD01.write(speed);
+            in00.write(false); // forward moottori1
+            in01.write(true);
+            in10.write(true); // forward moottori2
+            in11.write(false);
 
-        else {
-            pwmMTD00.write(0);
-            pwmMTD01.write(0);
-            printf("Svetlana on seis! %i \n", als);
-
-            sprintf(buffer, "{\"d\":{\"Tankki\":\"Svetlana\",\"Liike\":\"0 \",\"Valoanturin arvo:\":%i}}", als);  // JSON-muotoisen viestin muodostus. 
+            sprintf(buffer, "{\"d\":{\"Tankki\":\"Svetlana\",\"Liike\":\"1 \",\"Valoanturin arvo:\":%i}}", als);  // JSON-muotoisen viestin muodostus. 
             msg.payload = (void*)buffer;                             
             msg.payloadlen = strlen(buffer);                        
             client.publish("iot-2/evt/Svetlana/fmt/json", msg);     // Oikea formaatti
 
             moving = true;
-        }
+            ThisThread::sleep_for(1s);
+
+            } else {
+                int counter = 0;
+                while (getALS < 70) {
+                    turnLeft();
+                    ThisThread::sleep_for(1s);
+                    counter++;
+                    if (counter >= 10) {
+                        break;
+                    }
+                }
+                pwmMTD00.write(0);
+                pwmMTD01.write(0);
+                printf("Svetlana on seis! %i \n", als);
+
+                sprintf(buffer, "{\"d\":{\"Tankki\":\"Svetlana\",\"Liike\":\"0 \",\"Valoanturin arvo:\":%i}}", als);  // JSON-muotoisen viestin muodostus. 
+                msg.payload = (void*)buffer;                             
+                msg.payloadlen = strlen(buffer);                        
+                client.publish("iot-2/evt/Svetlana/fmt/json", msg);     // Oikea formaatti
+
+                moving = false;
+            }
         ThisThread::sleep_for(1s);
     }
 }
@@ -122,54 +145,6 @@ void turnLeft() {
     in01.write(false);
     in10.write(true);
     in11.write(false);
-}
-
-void turnRight() {
-    pwmMTD00.write(1.0f);
-    pwmMTD01.write(1.0f);
-    in00.write(false);
-    in01.write(true);
-    in10.write(false);
-    in11.write(true);
-}
-
-void forwardLoop() {
-    while (getALS() > 70) {
-        speed = getSpeed();
-        printf("Svetlanan vauhti kiihtyy! %i \n", als);
-        pwmMTD00.write(speed);
-        pwmMTD01.write(speed);
-        in00.write(false); // forward moottori1
-        in01.write(true);
-        in10.write(true); // forward moottori2
-        in11.write(false);
-
-        /*
-        sprintf(buffer, "{\"d\":{\"Tankki\":\"Svetlana\",\"Liike\":\"1 \",\"Valoanturin arvo:\":%i}}", als);  // JSON-muotoisen viestin muodostus. 
-        msg.payload = (void*)buffer;                             
-        msg.payloadlen = strlen(buffer);                        
-        client.publish("iot-2/evt/Svetlana/fmt/json", msg);     // Oikea formaatti
-        */
-
-        moving = false;
-        ThisThread::sleep_for(1s);
-    }
-
-    if (getALS() < 70 && moving == false)
-    {
-        turnLeft();
-        ThisThread::sleep_for(2s);
-        if (getALS() > 70) {
-            forwardLoop();
-        }
-        else {
-            turnRight();
-            ThisThread::sleep_for(4s);
-            if (getALS() > 70) {
-                forwardLoop();
-            }
-        }
-    }
 }
 
 int getALS()    // Funktio palauttaa valoanturin arvon
