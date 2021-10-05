@@ -25,7 +25,7 @@ int usT = 1000;   // f = 1000 Hz  T = 1 ms = 1000 us // f = 10000 Hz  T = 100 us
 char buffer[128];
 int als = 0;
 int fSpeed; 
-int oldSpeed = 100;        
+float oldSpeed = 1.0f;        
 int getALS();
 float getSpeed();
 void turnLeft();
@@ -109,13 +109,13 @@ int main()
 
             fSpeed = (int)(speed * 100)
 
-            sprintf(buffer, "{\"d\":{\"Tankki\":\"Svetlana\",\"Liike\":\"%i \",\"Valoanturin arvo:\":%i}}",fspeed, als);  // JSON-muotoisen viestin muodostus. 
+            sprintf(buffer, "{\"d\":{\"Tankki\":\"Svetlana\",\"Liike\":\"%i \",\"Valoanturin arvo:\":%i}}", fspeed, als);  // JSON-muotoisen viestin muodostus. 
             msg.payload = (void*)buffer;                             
             msg.payloadlen = strlen(buffer);                        
             client.publish("iot-2/evt/Svetlana/fmt/json", msg);     // Oikea formaatti
 
             moving = true;
-            oldSpeed = fSpeed;
+            oldSpeed = speed;
             ThisThread::sleep_for(1s);
         }
             
