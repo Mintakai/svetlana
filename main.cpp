@@ -108,9 +108,9 @@ int main()
             moving = true;
             ThisThread::sleep_for(1s);
 
-            } else {
+            } else if (getALS() < 70 && moving == true) {
                 int counter = 0;
-                while (getALS < 70) {
+                while (getALS() < 70) {
                     turnLeft();
                     ThisThread::sleep_for(1s);
                     counter++;
