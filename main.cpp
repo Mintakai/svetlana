@@ -123,14 +123,14 @@ void turnLeft() {
     in00.write(false);
     in01.write(true);
     in10.write(false);
-    in11.write(true)
+    in11.write(true);
 }
 
 void turnRight() {
     pwmMTD00.write(1.0f);
     pwmMTD01.write(1.0f);
     in00.write(true);
-    in10.write(false);
+    in01.write(false);
     in10.write(true);
     in11.write(false);
 }
